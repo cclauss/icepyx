@@ -2,7 +2,9 @@ name: Update UML diagrams
 on:
   pull_request_review:
     types: [submitted]
-    branches: development
+    branches:
+      - v2  # TODO: Remove!
+      - development
   workflow_dispatch:
 
 jobs:

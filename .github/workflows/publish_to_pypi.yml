@@ -8,6 +8,7 @@ on:
       - published
   push:
     branches:
+      - v2  # TODO: Remove!
       - development
   # Trigger manually at https://github.com/icesat2py/icepyx/actions/workflows/publish_to_pypi.yml
   workflow_dispatch:
