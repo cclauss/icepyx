@@ -410,8 +410,7 @@ class Query(GenQuery, EarthdataAuthMixin):
     ):
         # Check necessary combination of input has been specified
         if (product is None or spatial_extent is None) or (
-            (date_range is None and cycles is None and tracks is None)
-            and int(product[-2:]) <= 13
+            (date_range is None and cycles is None and tracks is None) and int(product[-2:]) <= 13
         ):
             raise ValueError(
                 "Please provide the required inputs. Use help([function]) to view the function's documentation"
@@ -586,7 +585,8 @@ class Query(GenQuery, EarthdataAuthMixin):
         >>> reg_a = ipx.Query('ATL06',[-55, 68, -48, 71],['2019-02-20','2019-02-28']) # doctest: +SKIP
         >>> reg_a.order_granules() # doctest: +SKIP
         >>> reg_a.reqparams # doctest: +SKIP
-        {'short_name': 'ATL06', 'version': '006', 'page_size': 2000, 'page_num': 1, 'request_mode': 'async', 'include_meta': 'Y', 'client_string': 'icepyx'}
+        {'short_name': 'ATL06', 'version': '006', 'page_size': 2000, 'page_num': 1, 'request_mode': 'async',
+         'include_meta': 'Y', 'client_string': 'icepyx'}
         """
 
         if not hasattr(self, "_reqparams"):
@@ -675,7 +675,8 @@ class Query(GenQuery, EarthdataAuthMixin):
             return self._subsetparams.fmted_keys
 
     # DevGoal: add to tests
-    # DevGoal: add statements to the following vars properties to let the user know if they've got a mismatched source and vars type
+    # DevGoal: add statements to the following vars properties to let the user know if they've got a mismatched source
+    # and vars type
     @property
     def order_vars(self):
         """
@@ -759,13 +760,16 @@ class Query(GenQuery, EarthdataAuthMixin):
         Examples
         --------
         >>> reg_a = ipx.Query('ATL06',[-55, 68, -48, 71],['2019-02-20','2019-02-28'], version='006')
-        >>> reg_a.product_summary_info()
+        >>> reg_a.product_summary_info()  # doctest: +NORMALIZE_WHITESPACE
         title :  ATLAS/ICESat-2 L3A Land Ice Height V006
         short_name :  ATL06
         version_id :  006
         time_start :  2018-10-14T00:00:00.000Z
         coordinate_system :  CARTESIAN
-        summary :  This data set (ATL06) provides geolocated, land-ice surface heights (above the WGS 84 ellipsoid, ITRF2014 reference frame), plus ancillary parameters that can be used to interpret and assess the quality of the height estimates. The data were acquired by the Advanced Topographic Laser Altimeter System (ATLAS) instrument on board the Ice, Cloud and land Elevation Satellite-2 (ICESat-2) observatory.
+        summary :  This data set (ATL06) provides geolocated, land-ice surface heights (above the WGS 84 ellipsoid,
+        ITRF2014 reference frame), plus ancillary parameters that can be used to interpret and assess the quality of
+        the height estimates. The data were acquired by the Advanced Topographic Laser Altimeter System (ATLAS)
+        instrument on board the Ice, Cloud and land Elevation Satellite-2 (ICESat-2) observatory.
         orbit_parameters :  {}
         """
         if not hasattr(self, "_about_product"):
@@ -871,9 +875,7 @@ class Query(GenQuery, EarthdataAuthMixin):
         try:
             all(key in self._cust_options.keys() for key in keys)
         except AttributeError or KeyError:
-            self._cust_options = is2ref._get_custom_options(
-                self.session, self.product, self._version
-            )
+            self._cust_options = is2ref._get_custom_options(self.session, self.product, self._version)
 
         for h, k in zip(headers, keys):
             print(h)
@@ -1003,17 +1005,11 @@ class Query(GenQuery, EarthdataAuthMixin):
             self._reqparams.build_params(**self._reqparams.fmted_keys)
         elif email is True:
             user_profile = self.auth.get_user_profile()
-            self._reqparams.build_params(
-                **self._reqparams.fmted_keys, email=user_profile["email_address"]
-            )
+            self._reqparams.build_params(**self._reqparams.fmted_keys, email=user_profile["email_address"])
 
         if subset is False:
             self._subsetparams = None
-        elif (
-            subset is True
-            and hasattr(self, "_subsetparams")
-            and self._subsetparams is None
-        ):
+        elif subset is True and hasattr(self, "_subsetparams") and self._subsetparams is None:
             del self._subsetparams
 
         # REFACTOR: add checks here to see if the granules object has been created,
@@ -1027,7 +1023,8 @@ class Query(GenQuery, EarthdataAuthMixin):
             tempCMRparams = self.CMRparams
             if len(gran_name_list) > 1:
                 print(
-                    "NSIDC only allows ordering of one granule by name at a time; your orders will be placed accordingly."
+                    "NSIDC only allows ordering of one granule by name at a time; your orders will be placed "
+                    "accordingly."
                 )
             for gran in gran_name_list:
                 tempCMRparams["readable_granule_name[]"] = gran
@@ -1051,9 +1048,7 @@ class Query(GenQuery, EarthdataAuthMixin):
             )
 
     # DevGoal: put back in the kwargs here so that people can just call download granules with subset=False!
-    def download_granules(
-        self, path, verbose=False, subset=True, restart=False, **kwargs
-    ):  # , extract=False):
+    def download_granules(self, path, verbose=False, subset=True, restart=False, **kwargs):  # , extract=False):
         """
         Downloads the data ordered using order_granules.
 
@@ -1105,10 +1100,7 @@ class Query(GenQuery, EarthdataAuthMixin):
         if restart is True:
             pass
         else:
-            if (
-                not hasattr(self._granules, "orderIDs")
-                or len(self._granules.orderIDs) == 0
-            ):
+            if not hasattr(self._granules, "orderIDs") or len(self._granules.orderIDs) == 0:
                 self.order_granules(verbose=verbose, subset=subset, **kwargs)
 
         self._granules.download(verbose, path, restart=restart)

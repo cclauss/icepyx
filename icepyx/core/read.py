@@ -128,10 +128,7 @@ def _parse_source(data_source, glob_kwargs={}) -> list:
             # data_source is a globable string
             filelist = glob.glob(data_source, **glob_kwargs)
     else:
-        raise TypeError(
-            "data_source should be a list of files, a directory, the path to a file, "
-            "or a glob string."
-        )
+        raise TypeError("data_source should be a list of files, a directory, the path to a file, " "or a glob string.")
 
     # Remove any directories from the list (these get generated during recursive
     # glob search)
@@ -139,10 +136,7 @@ def _parse_source(data_source, glob_kwargs={}) -> list:
 
     # Make sure a non-zero number of files were found
     if len(filelist) == 0:
-        raise KeyError(
-            "No files found matching the specified `data_source`. Check your glob "
-            "string or file list."
-        )
+        raise KeyError("No files found matching the specified `data_source`. Check your glob " "string or file list.")
 
     return filelist
 
@@ -193,13 +187,16 @@ class Read(EarthdataAuthMixin):
 
     filename_pattern : string, default None
         String that shows the filename pattern as previously required for Intake's path_as_pattern argument.
-        The default describes files downloaded directly from NSIDC (subsetted and non-subsetted) for most products (e.g. ATL06).
-        The ATL11 filename pattern from NSIDC is: 'ATL{product:2}_{rgt:4}{orbitsegment:2}_{cycles:4}_{version:3}_{revision:2}.h5'.
+        The default describes files downloaded directly from NSIDC (subsetted and non-subsetted) for most products
+        (e.g. ATL06).
+        The ATL11 filename pattern from NSIDC is:
+        'ATL{product:2}_{rgt:4}{orbitsegment:2}_{cycles:4}_{version:3}_{revision:2}.h5'.
         **Deprecation warning:** This argument is no longer required and has been deprecated.
     catalog : string, default None
         Full path to an Intake catalog for reading in data.
         If you still need to create a catalog, leave as default.
-        **Deprecation warning:** This argument has been deprecated. Please use the data_source argument to pass in valid data.
+        **Deprecation warning:** This argument has been deprecated. Please use the data_source argument to pass in valid
+        data.
 
     Returns
     -------
@@ -302,10 +299,7 @@ class Read(EarthdataAuthMixin):
         self._product = all_products[0]
 
         if out_obj_type is not None:
-            print(
-                "Output object type will be an xarray DataSet - "
-                "no other output types are implemented yet"
-            )
+            print("Output object type will be an xarray DataSet - " "no other output types are implemented yet")
         self._out_obj = xr.Dataset
 
     # ----------------------------------------------------------------------
@@ -336,9 +330,7 @@ class Read(EarthdataAuthMixin):
         # because otherwise Variables (variables.py) tries to get the version from the file (ln99).
         bad_metadata = ["ATL11", "ATL14", "ATL15"]
         if self._product in bad_metadata and not hasattr(self, "_read_vars"):
-            self._read_vars = Variables(
-                product=self._product, version=is2ref.latest_version(self._product)
-            )
+            self._read_vars = Variables(product=self._product, version=is2ref.latest_version(self._product))
 
         if not hasattr(self, "_read_vars"):
             self._read_vars = Variables(path=self.filelist[0])
@@ -425,20 +417,12 @@ class Read(EarthdataAuthMixin):
             else:
                 spot = track_str
 
-            grp_spec_vars = [
-                k
-                for k, v in wanted_dict.items()
-                if any(f"{grp_path}/{k}" in x for x in v)
-            ]
+            grp_spec_vars = [k for k, v in wanted_dict.items() if any(f"{grp_path}/{k}" in x for x in v)]
 
             # handle delta_times with 1 or more dimensions
             idx_range = range(0, len(ds.delta_time.data))
             try:
-                photon_ids = (
-                    idx_range
-                    + np.full_like(idx_range, np.max(is2ds.photon_idx), dtype="int64")
-                    + 1
-                )
+                photon_ids = idx_range + np.full_like(idx_range, np.max(is2ds.photon_idx), dtype="int64") + 1
             except AttributeError:
                 photon_ids = range(0, len(ds.delta_time.data))
 
@@ -458,9 +442,7 @@ class Read(EarthdataAuthMixin):
 
             # handle cases where the delta time is 2d due to multiple cycles in that group
             if spot_dim_name == "pair_track" and np.ndim(hold_delta_times) > 1:
-                ds = ds.assign_coords(
-                    {"delta_time": (("photon_idx", "cycle_number"), hold_delta_times)}
-                )
+                ds = ds.assign_coords({"delta_time": (("photon_idx", "cycle_number"), hold_delta_times)})
 
             # for ATL11
             if "ref_pt" in ds.coords:
@@ -491,9 +473,7 @@ class Read(EarthdataAuthMixin):
 
             grp_spec_vars.extend([spot_var_name, "photon_idx"])
 
-            is2ds = is2ds.merge(
-                ds[grp_spec_vars], join="outer", combine_attrs="drop_conflicts"
-            )
+            is2ds = is2ds.merge(ds[grp_spec_vars], join="outer", combine_attrs="drop_conflicts")
 
             # re-cast some dtypes to make array smaller
             is2ds[spot_var_name] = is2ds[spot_var_name].astype(str)
@@ -528,9 +508,7 @@ class Read(EarthdataAuthMixin):
 
         # Dev Goal: improve this type of iterating to minimize amount of looping required.
         # Would a path handling library be useful here?
-        grp_spec_vars = [
-            k for k, v in wanted_dict.items() if any(f"{grp_path}/{k}" in x for x in v)
-        ]
+        grp_spec_vars = [k for k, v in wanted_dict.items() if any(f"{grp_path}/{k}" in x for x in v)]
 
         # # Use this to handle issues specific to group paths that are more nested
         # tiers = len(wanted_groups_tiered)
@@ -541,7 +519,8 @@ class Read(EarthdataAuthMixin):
         #     for k in ds[var].attrs.keys():
         #         ds.attrs.pop(k)
         #     # warnings.warn(
-        #     #     "Due to the number of layers of variable group paths, some attributes have been dropped from your DataSet during merging",
+        #     #     "Due to the number of layers of variable group paths, some attributes have been dropped from your "
+        #     #     "DataSet during merging",
         #     #     UserWarning,
         #     # )
 
@@ -628,9 +607,7 @@ class Read(EarthdataAuthMixin):
                 s3 = earthaccess.get_s3fs_session(daac="NSIDC")
                 file = s3.open(file, "rb")
 
-            all_dss.append(
-                self._build_single_file_dataset(file, groups_list)
-            )  # wanted_groups, vgrp.keys()))
+            all_dss.append(self._build_single_file_dataset(file, groups_list))  # wanted_groups, vgrp.keys()))
 
             # Closing the file prevents further operations on the dataset
             # from s3fs.core import S3File
@@ -718,9 +695,7 @@ class Read(EarthdataAuthMixin):
         Xarray Dataset
         """
         # returns wanted groups as a list of lists with group path string elements separated
-        _, wanted_groups_tiered = Variables.parse_var_list(
-            groups_list, tiered=True, tiered_vars=True
-        )
+        _, wanted_groups_tiered = Variables.parse_var_list(groups_list, tiered=True, tiered_vars=True)
 
         # DEVNOTE: elif does not actually apply wanted variable list,
         # and has not been tested for merging multiple files into one ds
@@ -748,9 +723,7 @@ class Read(EarthdataAuthMixin):
                 while wanted_groups_list:
                     ds = self._read_single_grp(file, grp_path=wanted_groups_list[0])
                     wanted_groups_list = wanted_groups_list[1:]
-                    is2ds = is2ds.merge(
-                        ds, join="outer", combine_attrs="drop_conflicts"
-                    )
+                    is2ds = is2ds.merge(ds, join="outer", combine_attrs="drop_conflicts")
                     if hasattr(is2ds, "description"):
                         is2ds.attrs["description"] = (
                             "Group-level data descriptions were removed during Dataset creation."
@@ -761,9 +734,7 @@ class Read(EarthdataAuthMixin):
             is2ds = self._build_dataset_template(file)
 
             # returns the wanted groups as a single list of full group path strings
-            wanted_dict, wanted_groups = Variables.parse_var_list(
-                groups_list, tiered=False
-            )
+            wanted_dict, wanted_groups = Variables.parse_var_list(groups_list, tiered=False)
             wanted_groups_set = set(wanted_groups)
 
             # orbit_info is used automatically as the first group path
@@ -778,9 +749,7 @@ class Read(EarthdataAuthMixin):
                 grp_path = wanted_groups_list[0]
                 wanted_groups_list = wanted_groups_list[1:]
                 ds = self._read_single_grp(file, grp_path)
-                is2ds, ds = Read._add_vars_to_ds(
-                    is2ds, ds, grp_path, wanted_groups_tiered, wanted_dict
-                )
+                is2ds, ds = Read._add_vars_to_ds(is2ds, ds, grp_path, wanted_groups_tiered, wanted_dict)
 
             return is2ds
 
@@ -789,26 +758,20 @@ class Read(EarthdataAuthMixin):
             is2ds = self._build_dataset_template(file)
 
             # returns the wanted groups as a single list of full group path strings
-            wanted_dict, wanted_groups = Variables.parse_var_list(
-                groups_list, tiered=False
-            )
+            wanted_dict, wanted_groups = Variables.parse_var_list(groups_list, tiered=False)
             wanted_groups_set = set(wanted_groups)
             # orbit_info is used automatically as the first group path
             # so the info is available for the rest of the groups
             wanted_groups_set.remove("orbit_info")
             wanted_groups_set.remove("ancillary_data")
             # Note: the sorting is critical for datasets with highly nested groups
-            wanted_groups_list = ["orbit_info", "ancillary_data"] + sorted(
-                wanted_groups_set
-            )
+            wanted_groups_list = ["orbit_info", "ancillary_data"] + sorted(wanted_groups_set)
 
             while wanted_groups_list:
                 grp_path = wanted_groups_list[0]
                 wanted_groups_list = wanted_groups_list[1:]
                 ds = self._read_single_grp(file, grp_path)
-                is2ds, ds = Read._add_vars_to_ds(
-                    is2ds, ds, grp_path, wanted_groups_tiered, wanted_dict
-                )
+                is2ds, ds = Read._add_vars_to_ds(is2ds, ds, grp_path, wanted_groups_tiered, wanted_dict)
 
                 # if there are any deeper nested variables,
                 # get those so they have actual coordinates and add them
@@ -817,9 +780,7 @@ class Read(EarthdataAuthMixin):
                     for grp_path2 in wanted_groups_list:
                         if grp_path in grp_path2:
                             sub_ds = self._read_single_grp(file, grp_path2)
-                            ds = Read._combine_nested_vars(
-                                ds, sub_ds, grp_path2, wanted_dict
-                            )
+                            ds = Read._combine_nested_vars(ds, sub_ds, grp_path2, wanted_dict)
                             wanted_groups_list.remove(grp_path2)
                     is2ds = is2ds.merge(ds, join="outer", combine_attrs="no_conflicts")
 

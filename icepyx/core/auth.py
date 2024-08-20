@@ -72,9 +72,7 @@ class EarthdataAuthMixin:
             auth = earthaccess.login()
             # check for a valid auth response
             if auth.authenticated is False:
-                raise AuthenticationError(
-                    "Earthdata authentication failed. Check output for error message"
-                )
+                raise AuthenticationError("Earthdata authentication failed. Check output for error message")
             else:
                 self._auth = auth
 
@@ -109,9 +107,7 @@ class EarthdataAuthMixin:
         # has passed since the last login
         if self._s3login_credentials is None:
             set_s3_creds()
-        elif (datetime.datetime.now() - self._s3_initial_ts) >= datetime.timedelta(
-            hours=1
-        ):
+        elif (datetime.datetime.now() - self._s3_initial_ts) >= datetime.timedelta(hours=1):
             set_s3_creds()
         return self._s3login_credentials
 
@@ -143,7 +139,8 @@ class EarthdataAuthMixin:
         >>> reg_a.earthdata_login() # doctest: +SKIP
         Enter your Earthdata Login username: ___________________
 
-        EARTHDATA_USERNAME and EARTHDATA_PASSWORD are not set in the current environment, try setting them or use a different strategy (netrc, interactive)
+        EARTHDATA_USERNAME and EARTHDATA_PASSWORD are not set in the current environment, try setting them or use a
+        different strategy (netrc, interactive)
         No .netrc found in /Users/username
 
         """

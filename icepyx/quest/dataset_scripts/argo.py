@@ -54,11 +54,8 @@ class Argo(DataSet):
             df = "No data yet"
         else:
             df = "\n" + str(self.argodata.head())
-        s = (
-            "---Argo---\n"
-            "Parameters: {0}\n"
-            "Pressure range: {1}\n"
-            "Dataframe head: {2}".format(self.params, prange, df)
+        s = "---Argo---\n" "Parameters: {0}\n" "Pressure range: {1}\n" "Dataframe head: {2}".format(
+            self.params, prange, df
         )
 
         return s
@@ -226,9 +223,7 @@ class Argo(DataSet):
             valid_params = self._valid_params()
             # checks that params are valid
             for i in params:
-                assert (
-                    i in valid_params
-                ), "Parameter '{0}' is not valid. Valid parameters are {1}".format(
+                assert i in valid_params, "Parameter '{0}' is not valid. Valid parameters are {1}".format(
                     i, valid_params
                 )
 
@@ -287,9 +282,7 @@ class Argo(DataSet):
             payload["presRange"] = self.presRange
 
         # submit request
-        resp = requests.get(
-            baseURL, headers={"x-argokey": self._apikey}, params=payload
-        )
+        resp = requests.get(baseURL, headers={"x-argokey": self._apikey}, params=payload)
 
         if printURL:
             print(resp.url)
@@ -300,10 +293,7 @@ class Argo(DataSet):
         if not resp.status_code // 100 == 2:
             # check for the existence of profiles from query
             if selectionProfiles == []:
-                msg = (
-                    "Warning: Query returned no profiles\n"
-                    "Please try different search parameters"
-                )
+                msg = "Warning: Query returned no profiles\n" "Please try different search parameters"
                 print(msg)
                 return msg
 
@@ -354,9 +344,7 @@ class Argo(DataSet):
             payload["presRange"] = self.presRange
 
         # submit request
-        resp = requests.get(
-            baseURL, headers={"x-argokey": self._apikey}, params=payload
-        )
+        resp = requests.get(baseURL, headers={"x-argokey": self._apikey}, params=payload)
 
         if printURL:
             print(resp.url)
@@ -384,9 +372,7 @@ class Argo(DataSet):
         pd.DataFrame : DataFrame of profile data
         """
 
-        profileDf = pd.DataFrame(
-            np.transpose(profile_data["data"]), columns=profile_data["data_info"][0]
-        )
+        profileDf = pd.DataFrame(np.transpose(profile_data["data"]), columns=profile_data["data_info"][0])
 
         # this block tries to catch changes to the ArgoVis API that will break the dataframe creation
         try:
@@ -396,9 +382,7 @@ class Argo(DataSet):
             profileDf["lon"] = profile_data["geolocation"]["coordinates"][0]
             profileDf["date"] = profile_data["timestamp"]
         except KeyError as err:
-            msg = "We cannot automatically parse your profile into a dataframe due to {0}".format(
-                err
-            )
+            msg = "We cannot automatically parse your profile into a dataframe due to {0}".format(err)
             print(msg)
             return msg
 
@@ -469,7 +453,8 @@ class Argo(DataSet):
         # intentionally resubmit search to reset prof_ids, in case the user requested different parameters
         self.search_data()
 
-        # create a dataframe for each profile and merge it with the rest of the profiles from this set of parameters being downloaded
+        # create a dataframe for each profile and merge it with the rest of the profiles from this set of parameters
+        # being downloaded
         merged_df = pd.DataFrame(columns=["profile_id"])
         for i in self.prof_ids:
             print("processing profile", i)
@@ -481,7 +466,8 @@ class Argo(DataSet):
                 print("\tError processing profile {0}. Skipping.".format(i))
 
         # now that we have a df from this round of downloads, we can add it to any existing dataframe
-        # note that if a given column has previously been added, update needs to be used to replace nans (merge will not replace the nan values)
+        # note that if a given column has previously been added, update needs to be used to replace nans (merge will
+        # not replace the nan values)
         if self.argodata is not None:
             self.argodata = self.argodata.merge(merged_df, how="outer")
         else:

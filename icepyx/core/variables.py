@@ -96,13 +96,9 @@ class Variables(EarthdataAuthMixin):
             self._product = is2ref._validate_product(product)
             # Check for valid version string
             # If version is not specified by the user assume the most recent version
-            self._version = val.prod_version(
-                is2ref.latest_version(self._product), version
-            )
+            self._version = val.prod_version(is2ref.latest_version(self._product), version)
         else:
-            raise TypeError(
-                "Either a path or a product need to be given as input arguments."
-            )
+            raise TypeError("Either a path or a product need to be given as input arguments.")
 
         self._avail = avail
         self.wanted = wanted
@@ -131,7 +127,8 @@ class Variables(EarthdataAuthMixin):
 
         Examples
         --------
-        >>> reg_a = ipx.Query('ATL06',[-55, 68, -48, 71],['2019-02-20','2019-02-28'], version='5') # doctest: +SKIP
+        >>> reg_a = ipx.Query(
+        ...     'ATL06', [-55, 68, -48, 71], ['2019-02-20','2019-02-28'], version='5') # doctest: +SKIP
         >>> reg_a.order_vars.avail() # doctest: +SKIP
         ['ancillary_data/atlas_sdp_gps_epoch',
         'ancillary_data/control',
@@ -145,9 +142,7 @@ class Variables(EarthdataAuthMixin):
 
         if not hasattr(self, "_avail") or self._avail is None:
             if not hasattr(self, "path") or self.path.startswith("s3"):
-                self._avail = is2ref._get_custom_options(
-                    self.session, self.product, self.version
-                )["variables"]
+                self._avail = is2ref._get_custom_options(self.session, self.product, self.version)["variables"]
             else:
                 # If a path was given, use that file to read the variables
                 import h5py
@@ -200,7 +195,8 @@ class Variables(EarthdataAuthMixin):
 
         Examples
         --------
-        >>> reg_a = ipx.Query('ATL06',[-55, 68, -48, 71],['2019-02-20','2019-02-28'], version='1') # doctest: +SKIP
+        >>> reg_a = ipx.Query(
+        ...    'ATL06', [-55, 68, -48, 71], ['2019-02-20','2019-02-28'], version='1') # doctest: +SKIP
         >>> var_dict, paths = reg_a.order_vars.parse_var_list(reg_a.order_vars.avail()) # doctest: +SKIP
         >>> var_dict # doctest: +SKIP
         {'atlas_sdp_gps_epoch': ['ancillary_data/atlas_sdp_gps_epoch'],
@@ -292,9 +288,7 @@ class Variables(EarthdataAuthMixin):
 
         return vgrp, paths
 
-    def _check_valid_lists(
-        self, vgrp, allpaths, var_list=None, beam_list=None, keyword_list=None
-    ):
+    def _check_valid_lists(self, vgrp, allpaths, var_list=None, beam_list=None, keyword_list=None):
         """
         Check that the user is requesting valid paths and/or variables for their product.
 
@@ -426,7 +420,8 @@ class Variables(EarthdataAuthMixin):
                                 req_vars[vkey].append(vpath)
         return req_vars
 
-    # DevGoal: we can ultimately add an "interactive" trigger that will open the not-yet-made widget. Otherwise, it will use the var_list passed by the user/defaults
+    # DevGoal: we can ultimately add an "interactive" trigger that will open the not-yet-made widget.
+    # Otherwise, it will use the var_list passed by the user/defaults
     def append(self, defaults=False, var_list=None, beam_list=None, keyword_list=None):
         """
         Add to the list of desired variables using user specified beams and variable list.
@@ -451,9 +446,9 @@ class Variables(EarthdataAuthMixin):
             For all other products, acceptable values are ['gt1l', 'gt1r', 'gt2l', 'gt2r', 'gt3l', 'gt3r'].
 
         keyword_list : list of strings, default None
-            A list of subdirectory names (keywords), from any hierarchy level within the data structure, to select variables within
-            the product that include that keyword in their path. A list of available keywords can be obtained by
-            entering `keyword_list=['']` into the function.
+            A list of subdirectory names (keywords), from any hierarchy level within the data structure, to select
+            variables within the product that include that keyword in their path. A list of available keywords can be
+            obtained by entering `keyword_list=['']` into the function.
 
         Notes
         -----
@@ -483,11 +478,9 @@ class Variables(EarthdataAuthMixin):
         """
 
         assert not (
-            defaults is False
-            and var_list is None
-            and beam_list is None
-            and keyword_list is None
-        ), "You must enter parameters to add to a variable subset list. If you do not want to subset by variable, ensure your is2.subsetparams dictionary does not contain the key 'Coverage'."
+            defaults is False and var_list is None and beam_list is None and keyword_list is None
+        ), "You must enter parameters to add to a variable subset list. If you do not want to subset by variable, "
+        "ensure your is2.subsetparams dictionary does not contain the key 'Coverage'."
 
         final_vars = {}
 
@@ -498,7 +491,8 @@ class Variables(EarthdataAuthMixin):
         if not hasattr(self, "wanted") or self.wanted is None:
             self.wanted = {}
 
-            # DEVGOAL: add a secondary var list to include uncertainty/error information for lower level data if specific data variables have been specified...
+            # DEVGOAL: add a secondary var list to include uncertainty/error information for lower level data if
+            # specific data variables have been specified...
 
         # generate a list of variable names to include, depending on user input
         sum_varlist = self._get_sum_varlist(var_list, vgrp.keys(), defaults)
@@ -509,9 +503,7 @@ class Variables(EarthdataAuthMixin):
 
         # Case a beam and/or keyword list is specified (with or without variables)
         else:
-            final_vars.update(
-                self._iter_paths(sum_varlist, final_vars, vgrp, beam_list, keyword_list)
-            )
+            final_vars.update(self._iter_paths(sum_varlist, final_vars, vgrp, beam_list, keyword_list))
 
         # update the data object variables
         for vkey in final_vars.keys():
@@ -523,7 +515,8 @@ class Variables(EarthdataAuthMixin):
                     if vpath not in self.wanted[vkey]:
                         self.wanted[vkey].append(vpath)
 
-    # DevGoal: we can ultimately add an "interactive" trigger that will open the not-yet-made widget. Otherwise, it will use the var_list passed by the user/defaults
+    # DevGoal: we can ultimately add an "interactive" trigger that will open the not-yet-made widget. Otherwise, it will
+    # use the var_list passed by the user/defaults
     def remove(self, all=False, var_list=None, beam_list=None, keyword_list=None):
         """
         Remove the variables and paths from the wanted list using user specified beam, keyword,
@@ -545,8 +538,8 @@ class Variables(EarthdataAuthMixin):
             For all other products, acceptable values are ['gt1l', 'gt1r', 'gt2l', 'gt2r', 'gt3l', 'gt3r'].
 
         keyword_list : list of strings, default None
-            A list of subdirectory names (keywords), from any hierarchy level within the data structure, to select variables within
-            the product that include that keyword in their path.
+            A list of subdirectory names (keywords), from any hierarchy level within the data structure, to select
+            variables within the product that include that keyword in their path.
 
         Notes
         -----
@@ -576,15 +569,10 @@ class Variables(EarthdataAuthMixin):
         """
 
         if not hasattr(self, "wanted") or self.wanted is None:
-            raise ValueError(
-                "You must construct a wanted variable list in order to remove values from it."
-            )
+            raise ValueError("You must construct a wanted variable list in order to remove values from it.")
 
         assert not (
-            all is False
-            and var_list is None
-            and beam_list is None
-            and keyword_list is None
+            all is False and var_list is None and beam_list is None and keyword_list is None
         ), "You must specify which variables/paths/beams you would like to remove from your wanted list."
 
         # if not hasattr(self, 'avail'): self.get_avail()

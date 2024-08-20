@@ -68,6 +68,7 @@ ignore-words-list = "aas,socio-economic,toi"
 [tool.ruff]
 # DevGoal: Lint and format all Jupyter Notebooks, remove below.
 extend-exclude = ["*.ipynb"]
+line-length=120
 
 # [tool.ruff.format]
 # docstring-code-format = true
@@ -79,24 +80,11 @@ select = [
   "E",    # pycodestyle
   "F",    # pyflakes
 ]
-ignore = [
-  # Line too long
-  # NOTE: This is a formatting concern. Formatter handles long lines of code,
-  # but allows inline comments to be infinitely long (automatically formatting
-  # them can have unintended consequences). In our codebase, we have a lot of
-  # overlong comments.
-  # See: https://github.com/psf/black/issues/1713#issuecomment-1357045092
-  "E501",
-]
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore import violations in all `__init__.py` files and doc config
 "__init__.py" = ["E402", "F401"]
-"doc/source/conf.py" = ["E402", "F401"]
+# "doc/source/conf.py" = ["E402", "F401"]
 
-# Ignore line length in test file containing some very long test strings
-"test_granules.py" = ["E501"]
-"test_spatial.py" = ["E501"]
-
-# Ignore too many leading '#' for block comment
-"*/tests/*" = ["E266"]
+# Ignore too many leading '#' for block comment and long lines
+"*/tests/*" = ["E266", "E501"]

@@ -36,17 +36,9 @@ def _fmt_temporal(start, end, key):
     ], "An invalid time key was submitted for formatting."
 
     if key == "temporal":
-        fmt_timerange = (
-            start.strftime("%Y-%m-%dT%H:%M:%SZ")
-            + ","
-            + end.strftime("%Y-%m-%dT%H:%M:%SZ")
-        )
+        fmt_timerange = start.strftime("%Y-%m-%dT%H:%M:%SZ") + "," + end.strftime("%Y-%m-%dT%H:%M:%SZ")
     elif key == "time":
-        fmt_timerange = (
-            start.strftime("%Y-%m-%dT%H:%M:%S")
-            + ","
-            + end.strftime("%Y-%m-%dT%H:%M:%S")
-        )
+        fmt_timerange = start.strftime("%Y-%m-%dT%H:%M:%S") + "," + end.strftime("%Y-%m-%dT%H:%M:%S")
 
     return {key: fmt_timerange}
 
@@ -184,8 +176,8 @@ def to_string(params):
 # ----------------------------------------------------------------------
 # DevNote: Currently, this class is not tested!!
 # DevGoal: this could be expanded, similar to the variables class, to provide users with valid options if need be
-# DevGoal: currently this does not do much by way of checking/formatting of other subsetting options (reprojection or formats)
-# it would be great to incorporate that so that people can't just feed any keywords in...
+# DevGoal: currently this does not do much by way of checking/formatting of other subsetting options (reprojection or
+# formats) it would be great to incorporate that so that people can't just feed any keywords in...
 class Parameters:
     """
     Build and update the parameter lists needed to submit a data order
@@ -301,9 +293,7 @@ class Parameters:
         val_list = list({val for lis in self.poss_keys.values() for val in lis})
 
         for key in self.fmted_keys.keys():
-            assert key in val_list, (
-                "An invalid key (" + key + ") was passed. Please remove it using `del`"
-            )
+            assert key in val_list, "An invalid key (" + key + ") was passed. Please remove it using `del`"
 
     # DevNote: can check_req_values and check_values be combined?
     def check_req_values(self):
@@ -312,9 +302,7 @@ class Parameters:
         the values parameter.
         """
 
-        assert (
-            self.partype == "required"
-        ), "You cannot call this function for your parameter type"
+        assert self.partype == "required", "You cannot call this function for your parameter type"
         reqkeys = self.poss_keys[self._reqtype]
 
         if all(keys in self.fmted_keys.keys() for keys in reqkeys):
@@ -330,9 +318,7 @@ class Parameters:
         Check that the non-required keys have values, if the key was
         passed in with the values parameter.
         """
-        assert (
-            self.partype != "required"
-        ), "You cannot call this function for your parameter type"
+        assert self.partype != "required", "You cannot call this function for your parameter type"
 
         spatial_keys = self.poss_keys["spatial"]
 
@@ -411,16 +397,12 @@ class Parameters:
 
                 for key in opt_keys:
                     if key == "Coverage" and key in kwargs.keys():
-                        # DevGoal: make there be an option along the lines of Coverage=default, which will get the default variables for that product without the user having to input is2obj.build_wanted_wanted_var_list as their input value for using the Coverage kwarg
-                        self._fmted_keys.update(
-                            {key: _fmt_var_subset_list(kwargs[key])}
-                        )
-                    elif (key == "temporal" or key == "time") and (
-                        "start" in kwargs.keys() and "end" in kwargs.keys()
-                    ):
-                        self._fmted_keys.update(
-                            _fmt_temporal(kwargs["start"], kwargs["end"], key)
-                        )
+                        # DevGoal: make there be an option along the lines of Coverage=default, which will get the
+                        # default variables for that product without the user having to input
+                        # is2obj.build_wanted_wanted_var_list as their input value for using the Coverage kwarg
+                        self._fmted_keys.update({key: _fmt_var_subset_list(kwargs[key])})
+                    elif (key == "temporal" or key == "time") and ("start" in kwargs.keys() and "end" in kwargs.keys()):
+                        self._fmted_keys.update(_fmt_temporal(kwargs["start"], kwargs["end"], key))
                     elif key in kwargs:
                         self._fmted_keys.update({key: kwargs[key]})
                     else:

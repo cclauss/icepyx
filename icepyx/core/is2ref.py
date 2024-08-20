@@ -15,10 +15,7 @@ def _validate_product(product):
     """
     Confirm a valid ICESat-2 product was specified
     """
-    error_msg = (
-        "A valid product string was not provided. "
-        "Check user input, if given, or file metadata."
-    )
+    error_msg = "A valid product string was not provided. " "Check user input, if given, or file metadata."
     if isinstance(product, str):
         product = str.upper(product)
         assert product in [
@@ -56,17 +53,15 @@ def _validate_OA_product(product):
     """
     if isinstance(product, str):
         product = str.upper(product)
-        assert (
-            product
-            in [
-                "ATL06",
-                "ATL07",
-                "ATL08",
-                "ATL10",
-                "ATL12",
-                "ATL13",
-            ]
-        ), "Oops! Elevation visualization only supports products ATL06, ATL07, ATL08, ATL10, ATL12, ATL13; please try another product."
+        assert product in [
+            "ATL06",
+            "ATL07",
+            "ATL08",
+            "ATL10",
+            "ATL12",
+            "ATL13",
+        ], "Oops! Elevation visualization only supports products ATL06, ATL07, ATL08, ATL10, ATL12, ATL13; please try "
+        "another product."
     else:
         raise TypeError("Please enter a product string")
     return product
@@ -97,13 +92,9 @@ def _get_custom_options(session, product, version):
     cust_options = {}
 
     if session is None:
-        raise ValueError(
-            "Don't forget to log in to Earthdata using query.earthdata_login()"
-        )
+        raise ValueError("Don't forget to log in to Earthdata using query.earthdata_login()")
 
-    capability_url = (
-        f"https://n5eil02u.ecs.nsidc.org/egi/capabilities/{product}.{version}.xml"
-    )
+    capability_url = f"https://n5eil02u.ecs.nsidc.org/egi/capabilities/{product}.{version}.xml"
     response = session.get(capability_url)
     root = ET.fromstring(response.content)
 
@@ -137,9 +128,7 @@ def _get_custom_options(session, product, version):
         if "excludeFormat" in projections[i]:
             exclformats_str = projections[i]["excludeFormat"]
             exclformats_all.append(exclformats_str.split(","))
-    exclformats_list = [
-        item for sublist in exclformats_all for item in sublist
-    ]  # list only unique formats
+    exclformats_list = [item for sublist in exclformats_all for item in sublist]  # list only unique formats
     no_proj = list(set(exclformats_list))
     cust_options.update({"noproj": no_proj})
 
@@ -161,17 +150,15 @@ def _get_custom_options(session, product, version):
             get_varlist(child)
 
     get_varlist(root)
-    vars_vals = [
-        v.replace(":", "/") if v.startswith("/") is False else v.replace("/:", "")
-        for v in vars_raw
-    ]
+    vars_vals = [v.replace(":", "/") if v.startswith("/") is False else v.replace("/:", "") for v in vars_raw]
     cust_options.update({"variables": vars_vals})
 
     return cust_options
 
 
 # DevGoal: populate this with default variable lists for all of the products!
-# DevGoal: add a test for this function (to make sure it returns the right list, but also to deal with product not being in the list, though it should since it was checked as valid earlier...)
+# DevGoal: add a test for this function (to make sure it returns the right list, but also to deal with product not being
+# in the list, though it should since it was checked as valid earlier...)
 def _default_varlists(product):
     """
     Return a list of default variables to select and send to the NSIDC subsetter.
@@ -269,7 +256,8 @@ def _default_varlists(product):
 
     else:
         print(
-            "THE REQUESTED PRODUCT DOES NOT YET HAVE A DEFAULT LIST SET UP. ONLY DELTA_TIME, LATITUDE, AND LONGITUDE WILL BE RETURNED"
+            "THE REQUESTED PRODUCT DOES NOT YET HAVE A DEFAULT LIST SET UP. ONLY DELTA_TIME, LATITUDE, AND LONGITUDE"
+            "WILL BE RETURNED"
         )
         return common_list
 
@@ -368,9 +356,7 @@ def extract_product(filepath, auth=None):
     # Generate a file reader object relevant for the file location
     if filepath.startswith("s3"):
         if not auth:
-            raise AttributeError(
-                "Must provide credentials to `auth` if accessing s3 data"
-            )
+            raise AttributeError("Must provide credentials to `auth` if accessing s3 data")
         # Read the s3 file
         s3 = earthaccess.get_s3fs_session(daac="NSIDC")
         f = h5py.File(s3.open(filepath, "rb"))
@@ -389,9 +375,7 @@ def extract_product(filepath, auth=None):
             product = product[0]
         product = _validate_product(product)
     except KeyError as e:
-        raise Exception(
-            "Unable to parse the product name from file metadata"
-        ).with_traceback(e.__traceback__)
+        raise Exception("Unable to parse the product name from file metadata").with_traceback(e.__traceback__)
 
     # Close the file reader
     f.close()
@@ -414,9 +398,7 @@ def extract_version(filepath, auth=None):
     # Generate a file reader object relevant for the file location
     if filepath.startswith("s3"):
         if not auth:
-            raise AttributeError(
-                "Must provide credentials to `auth` if accessing s3 data"
-            )
+            raise AttributeError("Must provide credentials to `auth` if accessing s3 data")
         # Read the s3 file
         s3 = earthaccess.get_s3fs_session(daac="NSIDC")
         f = h5py.File(s3.open(filepath, "rb"))
@@ -434,9 +416,7 @@ def extract_version(filepath, auth=None):
             version = version.decode()
 
     except KeyError as e:
-        raise Exception(
-            "Unable to parse the version from file metadata"
-        ).with_traceback(e.__traceback__)
+        raise Exception("Unable to parse the version from file metadata").with_traceback(e.__traceback__)
 
     # catch cases where the version number is an invalid string
     # e.g. a VersionID of "SET_BY_PGE", causing issues where version needs to be a valid number

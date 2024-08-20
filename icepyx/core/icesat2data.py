@@ -6,5 +6,6 @@ class Icesat2Data:
         self,
     ):
         DeprecationError(
-            "DEPRECATED. Please use icepyx.Query to create a download data object (all other functionality is the same)",
+            "DEPRECATED. Please use icepyx.Query to create a download data object (all other functionality is the "
+            "same)",
         )

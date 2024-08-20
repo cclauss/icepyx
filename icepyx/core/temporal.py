@@ -82,16 +82,15 @@ def check_valid_date_range(start, end):
         start = start.date()
     if isinstance(end, dt.datetime):
         end = end.date()
-    assert (
-        start <= end
-    ), "Your date range is invalid; end date MUST be on or after the start date."
+    assert start <= end, "Your date range is invalid; end date MUST be on or after the start date."
 
 
 def validate_times(start_time, end_time):
     """
     Validates the start and end times passed into __init__ and returns them as datetime.time objects.
 
-    NOTE: If start and/or end times are not provided (are of type None), the defaults are 00:00:00 and 23:59:59, respectively.
+    NOTE: If start and/or end times are not provided (are of type None), the defaults are 00:00:00 and 23:59:59,
+    respectively.
 
     Parameters
     ----------
@@ -115,9 +114,7 @@ def validate_times(start_time, end_time):
     if start_time is not None:
         # user specified a start time, need to first check if it's a valid type (if not, throw an AssertionError)
         assert isinstance(start_time, valid_time_types), (
-            "start_time must be one of the following types: \n"
-            "str (format: HH:MM:SS)\n"
-            "datetime.time"
+            "start_time must be one of the following types: \n" "str (format: HH:MM:SS)\n" "datetime.time"
         )
 
         # if start_time is a string, then it must be converted to a datetime using strptime
@@ -129,9 +126,7 @@ def validate_times(start_time, end_time):
     if end_time is not None:
         # user specified an end time, need to first check if it's a valid type (if not, throw an AssertionError)
         assert isinstance(end_time, valid_time_types), (
-            "end_time must be one of the following types: \n"
-            "str (format: HH:MM:SS)\n"
-            "datetime.time"
+            "end_time must be one of the following types: \n" "str (format: HH:MM:SS)\n" "datetime.time"
         )
         # if end_time is a string, then it must be converted to a datetime using strptime
         if not isinstance(end_time, dt.time):
@@ -400,33 +395,26 @@ class Temporal:
             where HH = hours, mm = minutes, ss = seconds.
             If None is given (and a datetime.datetime object is not supplied for `date_range`),
             a default of 23:59:59 is applied.
-            If a datetime.datetime object was created without times, the datetime package defaults will apply over those of icepyx
+            If a datetime.datetime object was created without times, the datetime package defaults will apply over
+            those of icepyx
         """
 
         if len(date_range) == 2:
             # date range is provided as dict of strings, dates, or datetimes
             if isinstance(date_range, dict):
-                self._start, self._end = validate_date_range_dict(
-                    date_range, start_time, end_time
-                )
+                self._start, self._end = validate_date_range_dict(date_range, start_time, end_time)
 
             # date range is provided as list of strings
             elif all(isinstance(i, str) for i in date_range):
-                self._start, self._end = validate_date_range_datestr(
-                    date_range, start_time, end_time
-                )
+                self._start, self._end = validate_date_range_datestr(date_range, start_time, end_time)
 
             # date range is provided as list of datetimes
             elif all(isinstance(i, dt.datetime) for i in date_range):
-                self._start, self._end = validate_date_range_datetime(
-                    date_range, start_time, end_time
-                )
+                self._start, self._end = validate_date_range_datetime(date_range, start_time, end_time)
 
             # date range is provided as list of dates
             elif all(isinstance(i, dt.date) for i in date_range):
-                self._start, self._end = validate_date_range_date(
-                    date_range, start_time, end_time
-                )
+                self._start, self._end = validate_date_range_date(date_range, start_time, end_time)
 
             else:
                 # input type is invalid
